@@ -84,7 +84,7 @@ export const Members = () => {
     } catch (error) {}
 
     try {
-      const branchesRes = await api.get('/gym/branches');
+      const branchesRes = await api.get('/gym/branches', { baseURL: api.defaults.baseURL.replace('/user', '') });
       if (branchesRes.data && branchesRes.data.data && Array.isArray(branchesRes.data.data.branches)) {
         setBranches(branchesRes.data.data.branches.filter(b => b.status === 'ACTIVE'));
       }
