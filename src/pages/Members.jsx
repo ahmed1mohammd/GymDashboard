@@ -344,13 +344,22 @@ export const Members = () => {
     { 
       key: 'gender', 
       label: 'الجنس', 
-      render: (val) => (
-        <span className={`inline-flex items-center text-xs font-bold px-2.5 py-0.5 rounded-full ${
-          val === 'Female' ? 'text-pink-400 bg-pink-500/10 border border-pink-500/20' : 'text-sky-400 bg-sky-500/10 border border-sky-500/20'
-        }`}>
-          {val === 'Female' ? '🚺 أنثى' : '🚹 ذكر'}
-        </span>
-      ) 
+      render: (val) => {
+        const isFemale = val === 'Female';
+        const IconComponent = isFemale ? Venus : Mars;
+        return (
+          <span 
+            className={`inline-flex items-center justify-center w-7 h-7 rounded-lg border ${
+              isFemale 
+                ? 'text-pink-400 bg-pink-500/10 border-pink-500/20 shadow-[0_0_8px_rgba(236,72,153,0.15)]' 
+                : 'text-sky-400 bg-sky-500/10 border-sky-500/20 shadow-[0_0_8px_rgba(56,189,248,0.15)]'
+            }`}
+            title={isFemale ? 'أنثى' : 'ذكر'}
+          >
+            <IconComponent size={14} />
+          </span>
+        );
+      } 
     },
     { key: 'packageName', label: 'الباقة المنسوبة' },
     { 
@@ -367,16 +376,18 @@ export const Members = () => {
       label: 'حالة الاشتراك',
       render: (val) => {
         const statuses = {
-          active: { label: 'نشط', class: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20', icon: CheckCircle2 },
-          frozen: { label: 'مجمد', class: 'text-blue-400 bg-blue-500/10 border-blue-500/20', icon: AlertTriangle },
-          expired: { label: 'منتهي', class: 'text-rose-400 bg-rose-500/10 border-rose-500/20', icon: ShieldAlert },
+          active: { title: 'اشتراك نشط', class: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20 shadow-[0_0_8px_rgba(16,185,129,0.15)]', icon: CheckCircle2 },
+          frozen: { title: 'اشتراك مجمد مؤقتاً', class: 'text-blue-400 bg-blue-500/10 border-blue-500/20 shadow-[0_0_8px_rgba(59,130,246,0.15)]', icon: Snowflake },
+          expired: { title: 'اشتراك منتهي الصلاحية', class: 'text-rose-400 bg-rose-500/10 border-rose-500/20 shadow-[0_0_8px_rgba(244,63,94,0.15)]', icon: ShieldAlert },
         };
         const activeStatus = statuses[val] || statuses.active;
         const Icon = activeStatus.icon;
         return (
-          <span className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full border ${activeStatus.class}`}>
-            <Icon size={12} />
-            {activeStatus.label}
+          <span 
+            className={`inline-flex items-center justify-center w-7 h-7 rounded-lg border ${activeStatus.class}`}
+            title={activeStatus.title}
+          >
+            <Icon size={14} />
           </span>
         );
       },
@@ -385,14 +396,16 @@ export const Members = () => {
       key: 'attendedToday',
       label: 'حالة اليوم',
       render: (val) => (
-        <span className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full border ${
-          val 
-            ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.3)] animate-pulse' 
-            : 'text-gray-400 bg-gray-500/5 border-gray-500/10'
-        }`}>
-          <span className={`w-2 h-2 rounded-full ${val ? 'bg-emerald-400 shadow-[0_0_8px_#34d399]' : 'bg-gray-400'}`} />
-          {val ? 'حضر اليوم 🟢' : 'لم يحضر بعد ⚪'}
-        </span>
+        <div className="flex items-center justify-center">
+          <span 
+            className={`w-3.5 h-3.5 rounded-full border-2 ${
+              val 
+                ? 'bg-emerald-500 border-emerald-400 shadow-[0_0_10px_#10b981] animate-pulse' 
+                : 'bg-rose-500 border-rose-400 shadow-[0_0_10px_#f43f5e]'
+            }`}
+            title={val ? 'حضر اليوم' : 'لم يحضر اليوم بعد'}
+          />
+        </div>
       )
     },
     {
@@ -523,10 +536,10 @@ export const Members = () => {
                 onClick={() => handleOpenQR(row)} 
                 variant="outline" 
                 size="sm" 
-                className="p-1.5 flex items-center justify-center rounded-lg min-w-[28px] h-[28px]" 
+                className="p-1 flex items-center justify-center rounded-md w-[22px] h-[22px] min-w-0" 
                 title="عرض كود QR"
               >
-                <QrCode size={13} />
+                <QrCode size={11} />
               </CyberButton>
 
               <CyberButton 
@@ -537,7 +550,7 @@ export const Members = () => {
                 }} 
                 variant="secondary" 
                 size="sm"
-                className="border-emerald-500/30 text-emerald-400 hover:border-emerald-500/60 p-1.5 flex items-center justify-center rounded-lg min-w-[28px] h-[28px]"
+                className="border-emerald-500/30 text-emerald-400 hover:border-emerald-500/60 p-1 flex items-center justify-center rounded-md w-[22px] h-[22px] min-w-0"
                 title="إرسال عبر واتساب"
               >
                 <WhatsAppIcon />
@@ -549,19 +562,19 @@ export const Members = () => {
                     onClick={() => handleOpenEdit(row)} 
                     variant="secondary" 
                     size="sm" 
-                    className="p-1.5 flex items-center justify-center rounded-lg min-w-[28px] h-[28px]" 
+                    className="p-1 flex items-center justify-center rounded-md w-[22px] h-[22px] min-w-0" 
                     title="تعديل بيانات العضوية"
                   >
-                    <Edit2 size={13} />
+                    <Edit2 size={11} />
                   </CyberButton>
                   <CyberButton 
                     onClick={() => handleDelete(row.id)} 
                     variant="danger" 
                     size="sm" 
-                    className="p-1.5 flex items-center justify-center rounded-lg min-w-[28px] h-[28px]" 
+                    className="p-1 flex items-center justify-center rounded-md w-[22px] h-[22px] min-w-0" 
                     title="حذف العضو"
                   >
-                    <Trash2 size={13} />
+                    <Trash2 size={11} />
                   </CyberButton>
                 </>
               )}
