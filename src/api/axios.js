@@ -40,22 +40,27 @@ api.interceptors.response.use(
         localStorage.removeItem('user');
         window.location.href = '/login';
       } else if (error.response.status === 403) {
-        // Only log out if the gym account is inactive, frozen, suspended, or pending
-        const isGymStatusError = errMsg.includes('عفواً') || 
-                                 errMsg.includes('تعليق') || 
-                                 errMsg.includes('موقف') || 
-                                 errMsg.includes('مجمد') || 
-                                 errMsg.includes('مراجعة') || 
-                                 errMsg.includes('انتهت مدة الاشتراك');
+        // IMPORTANT: Only logout if this is a GYM-LEVEL status error (from gymStatusCheck middleware).
+        // Member-level 403s (frozen member QR scan, expired member, etc.) must NOT trigger logout.
+        // Gym-level errors come from the gym status middleware and contain specific identifiers.
+        const isGymLevelError = 
+          errMsg.includes('gym account is not active') ||
+          errMsg.includes('Your gym account') ||
+          errMsg.includes('الجيم') ||
+          errMsg.includes('حساب الصالة') ||
+          errMsg.includes('اشتراك المنصة') ||
+          errMsg.includes('انتهت مدة الاشتراك') ||
+          errMsg.includes('Platform-Owners must use') ||
+          errMsg.includes('Only Platform-Owners');
 
-        if (isGymStatusError) {
+        if (isGymLevelError) {
           toast.error(errMsg || 'عذراً، هذا الحساب غير مفعل أو مجمد حالياً. يرجى مراجعة إدارة المنصة.', { id: 'auth-error' });
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           window.location.href = '/login';
         } else {
-          // Standard role permission authorization error: just show the toast error without logging out
-          toast.error(errMsg || 'عذراً، ليس لديك الصلاحية للقيام بهذا الإجراء.', { id: 'auth-error' });
+          // Member-level or permission errors: just show the error message, NO logout
+          toast.error(errMsg || 'عذراً، ليس لديك الصلاحية للقيام بهذا الإجراء.', { id: 'attendance-error' });
         }
       } else {
         toast.error(errMsg || 'حدث خطأ غير متوقع');
