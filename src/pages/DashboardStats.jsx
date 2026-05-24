@@ -13,6 +13,7 @@ export const DashboardStats = () => {
     totalExpenses: 0,
     recentTransactions: [],
   });
+  const [branchBreakdown, setBranchBreakdown] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,6 +29,9 @@ export const DashboardStats = () => {
             totalRevenue: d.financials?.totalIncome !== undefined ? d.financials.totalIncome : prev.totalRevenue,
             totalExpenses: d.financials?.totalExpenses !== undefined ? d.financials.totalExpenses : prev.totalExpenses,
           }));
+          if (Array.isArray(d.branchBreakdown)) {
+            setBranchBreakdown(d.branchBreakdown);
+          }
         }
       } catch (error) {
         console.warn('Using fallback mock data for stats dashboard');
@@ -156,6 +160,41 @@ export const DashboardStats = () => {
           columns={columns}
           data={stats.recentTransactions}
           emptyMessage="لا توجد معاملات مسجلة حالياً"
+        />
+      </CyberCard>
+
+      {/* Branch financial breakdown table */}
+      <CyberCard title="توزيع ميزانية الخزينة واللاعبين حسب الفروع" subtitle="تفصيل الإيرادات والمصروفات واللاعبين النشطين لكل فرع من فروع المنظومة">
+        <DataTable
+          columns={[
+            { key: 'name', label: 'اسم الفرع' },
+            { 
+              key: 'totalIncome', 
+              label: 'إجمالي الإيرادات', 
+              render: (val) => <span className="text-emerald-400 font-bold">{val.toLocaleString('ar-EG')} ج.م</span> 
+            },
+            { 
+              key: 'totalExpenses', 
+              label: 'إجمالي المصروفات', 
+              render: (val) => <span className="text-rose-400 font-bold">{val.toLocaleString('ar-EG')} ج.م</span> 
+            },
+            { 
+              key: 'netProfit', 
+              label: 'صافي الأرباح', 
+              render: (val) => (
+                <span className={`font-black ${val >= 0 ? 'text-emerald-400 neon-text-emerald' : 'text-rose-400'}`}>
+                  {val >= 0 ? '+' : ''} {val.toLocaleString('ar-EG')} ج.م
+                </span>
+              ) 
+            },
+            { 
+              key: 'activePlayers', 
+              label: 'الأعضاء النشطين', 
+              render: (val) => <span className="text-sky-400 font-bold">{val} لاعب</span> 
+            },
+          ]}
+          data={branchBreakdown}
+          emptyMessage="لا توجد بيانات فروع معتمدة مسجلة حالياً"
         />
       </CyberCard>
     </div>

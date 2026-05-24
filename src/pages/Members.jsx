@@ -41,13 +41,16 @@ export const Members = () => {
     paymentMethod: 'cash',
     status: 'active',
     gender: 'Male',
+    branchId: '',
   });
 
   // Advanced Filtration states
   const [filterGender, setFilterGender] = useState('All');
   const [filterPackage, setFilterPackage] = useState('All');
   const [filterStatus, setFilterStatus] = useState('All');
+  const [filterBranch, setFilterBranch] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
+  const [branches, setBranches] = useState([]);
 
   const fetchCRMData = async () => {
     setLoading(true);
@@ -80,6 +83,13 @@ export const Members = () => {
       }
     } catch (error) {}
 
+    try {
+      const branchesRes = await api.get('/gym/branches');
+      if (branchesRes.data && branchesRes.data.data && Array.isArray(branchesRes.data.data.branches)) {
+        setBranches(branchesRes.data.data.branches.filter(b => b.status === 'ACTIVE'));
+      }
+    } catch (error) {}
+
     setLoading(false);
   };
 
@@ -98,6 +108,7 @@ export const Members = () => {
       paymentMethod: 'cash',
       status: 'active',
       gender: 'Male',
+      branchId: '',
     });
     setModalOpen(true);
   };
@@ -113,6 +124,7 @@ export const Members = () => {
       paymentMethod: m.paymentMethod || 'cash',
       status: m.status,
       gender: m.gender || 'Male',
+      branchId: m.branchId || '',
     });
     setModalOpen(true);
   };
@@ -291,6 +303,7 @@ export const Members = () => {
       paymentMethod: (formData.paymentMethod || 'cash').toLowerCase(),
       status: formData.status,
       gender: formData.gender || 'Male',
+      branchId: formData.branchId || null,
     };
 
     try {
@@ -340,6 +353,14 @@ export const Members = () => {
       ) 
     },
     { key: 'packageName', label: 'الباقة المنسوبة' },
+    { 
+      key: 'branchId', 
+      label: 'الفرع المنسوب', 
+      render: (val) => {
+        const found = branches.find(b => b.id === val);
+        return found ? found.name : 'الفرع الرئيسي';
+      }
+    },
     { key: 'coachName', label: 'المدرب الشخصي' },
     {
       key: 'status',
@@ -360,6 +381,31 @@ export const Members = () => {
         );
       },
     },
+    {
+      key: 'attendedToday',
+      label: 'حالة اليوم',
+      render: (val) => (
+        <span className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full border ${
+          val 
+            ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.3)] animate-pulse' 
+            : 'text-gray-400 bg-gray-500/5 border-gray-500/10'
+        }`}>
+          <span className={`w-2 h-2 rounded-full ${val ? 'bg-emerald-400 shadow-[0_0_8px_#34d399]' : 'bg-gray-400'}`} />
+          {val ? 'حضر اليوم 🟢' : 'لم يحضر بعد ⚪'}
+        </span>
+      )
+    },
+    {
+      key: 'attendanceStats',
+      label: 'الحضور | الغياب | الالتزام',
+      render: (_, row) => (
+        <div className="flex flex-col text-[11px] leading-relaxed text-right font-bold gap-0.5">
+          <span className="text-emerald-400">✔️ حضور: {row.attendedDays || 0} يوم</span>
+          <span className="text-rose-400">❌ غياب: {row.absentDays || 0} يوم</span>
+          <span className="text-sky-400">📊 التزام: {row.commitmentRate || 0}%</span>
+        </div>
+      )
+    },
   ];
 
   // Compute filtered members based on advanced criteria
@@ -370,7 +416,8 @@ export const Members = () => {
     const matchesSearch = !searchTerm || 
       (m.name && m.name.toLowerCase().includes(searchTerm.toLowerCase())) || 
       (m.phoneNumber && m.phoneNumber.includes(searchTerm));
-    return matchesGender && matchesPackage && matchesStatus && matchesSearch;
+    const matchesBranch = filterBranch === 'All' || (filterBranch === 'none' ? !m.branchId : m.branchId === filterBranch);
+    return matchesGender && matchesPackage && matchesStatus && matchesSearch && matchesBranch;
   }) : [];
 
   return (
@@ -392,7 +439,7 @@ export const Members = () => {
       {/* Members DataTable */}
       <CyberCard title="قائمة المشتركين والأعضاء">
         {/* Advanced Filters Bar */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6 bg-slate-950/45 p-4 rounded-2xl border border-cyber-border/30 backdrop-blur-md">
+        <div className="grid grid-cols-1 sm:grid-cols-5 gap-4 mb-6 bg-slate-950/45 p-4 rounded-2xl border border-cyber-border/30 backdrop-blur-md">
           {/* Search Input */}
           <div className="flex flex-col gap-1.5 w-full">
             <label className="text-[11px] font-bold text-gray-400 mr-1">البحث بالاسم أو الهاتف</label>
@@ -446,6 +493,22 @@ export const Members = () => {
               <option value="active">نشط (Active)</option>
               <option value="frozen">مجمد (Frozen)</option>
               <option value="expired">منتهي (Expired)</option>
+            </select>
+          </div>
+
+          {/* Filter by Branch */}
+          <div className="flex flex-col gap-1.5 w-full">
+            <label className="text-[11px] font-bold text-gray-400 mr-1">تصفية حسب الفرع</label>
+            <select
+              value={filterBranch}
+              onChange={(e) => setFilterBranch(e.target.value)}
+              className="w-full bg-[rgba(10,10,15,0.8)] border border-[var(--color-cyber-border)] rounded-xl py-2 px-3 text-xs text-white focus:outline-none focus:border-[var(--theme-primary)] transition-all duration-300"
+            >
+              <option value="All">جميع الفروع</option>
+              <option value="none">الفرع الرئيسي</option>
+              {branches.map(b => (
+                <option key={b.id} value={b.id}>{b.name}</option>
+              ))}
             </select>
           </div>
         </div>
@@ -540,6 +603,24 @@ export const Members = () => {
               <option value="Female">أنثى (Female)</option>
             </select>
           </div>
+
+          {user?.role === 'Gym-Owner' && (
+            <div className="flex flex-col gap-1.5 w-full">
+              <label className="text-xs font-semibold text-gray-400 mr-1">الفرع المنسوب إليه اللاعب</label>
+              <select
+                value={formData.branchId}
+                onChange={(e) => setFormData({ ...formData, branchId: e.target.value })}
+                className="w-full bg-[rgba(10,10,15,0.8)] border border-[var(--color-cyber-border)] rounded-xl py-2.5 px-4 text-sm text-white focus:outline-none focus:border-[var(--theme-primary)] transition-all duration-300"
+              >
+                <option value="">الفرع الرئيسي (بدون فرع)</option>
+                {branches.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div className="flex flex-col gap-1.5 w-full">
             <label className="text-xs font-semibold text-gray-400 mr-1">اختيار باقة الاشتراك</label>

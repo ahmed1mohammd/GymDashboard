@@ -104,70 +104,38 @@ export const Attendance = () => {
           }
         }
       } catch (e) {
-        // Fallback search in mock database during offline mode
-        const mockFound = Object.entries(memberDatabase).find(([_, m]) => m.phoneNumber === activeCode);
-        if (mockFound) {
-          activeCode = mockFound[0];
-          toast.success(`تم العثور على المشترك: ${mockFound[1].name} (محلي)`, { id: 'phone-lookup' });
-        } else {
-          toast.error('عذراً، لم يتم العثور على العضو.');
-          setLoading(false);
-          return;
-        }
+        toast.error('فشل الاتصال بالخادم، يرجى التحقق من شبكة الإنترنت.');
+        setLoading(false);
+        return;
       }
     }
 
     try {
       // POST API check to V2 Backend
-      const response = await api.post('/attendance/check', { qrCode: activeCode });
+      const response = await api.post('/attendance/check-in', { qrCode: activeCode });
       const attendance = response.data?.data?.attendance;
       
       setScanResult({
         success: true,
-        name: attendance?.member?.name || 'عضو الصالة الرياضية',
-        package: attendance?.member?.activePackage?.name || 'باقة معتمدة نشطة',
-        message: 'تم التصريح بالدخول - حضور مسجل بالخادم',
+        name: attendance?.member?.name || response.data?.data?.attendance?.member?.name || 'عضو الصالة الرياضية',
+        package: attendance?.member?.activePackage?.name || response.data?.data?.attendance?.member?.activePackage?.name || 'باقة معتمدة نشطة',
+        message: response.data?.message || 'تم التصريح بالدخول - حضور مسجل بالخادم أونلاين',
       });
-      toast.success('تم تسجيل الحضور في قاعدة البيانات');
+      toast.success('تم تسجيل الحضور بنجاح');
     } catch (error) {
-      // API error or offline fallback - search local mock
-      const member = memberDatabase[activeCode];
-      
-      if (member) {
-        if (member.status === 'active') {
-          setScanResult({
-            success: true,
-            name: member.name,
-            package: member.package,
-            message: 'مسموح بالدخول - اشتراك نشط وجاري (محلي)',
-          });
-          toast.success('تمت الموافقة على الدخول (محاكاة)');
-        } else if (member.status === 'frozen') {
-          setScanResult({
-            success: false,
-            name: member.name,
-            package: member.package,
-            message: 'مرفوض - الاشتراك مجمد حالياً (محلي)',
-          });
-          toast.error('الدخول مرفوض: اشتراك مجمد');
-        } else {
-          setScanResult({
-            success: false,
-            name: member.name,
-            package: member.package,
-            message: 'مرفوض - الاشتراك منتهي الصلاحية (محلي)',
-          });
-          toast.error('الدخول مرفوض: اشتراك منتهي');
-        }
-      } else {
-        const isServerDenial = error.response && error.response.status === 403;
-        const msg = error.response?.data?.message || 'رمز QR غير معروف أو غير موجود بالنظام.';
-        
+      if (!error.response) {
         setScanResult({
           success: false,
-          message: isServerDenial ? `مرفوض - ${msg}` : msg,
+          message: 'فشل الاتصال بالخادم، يرجى التحقق من شبكة الإنترنت.',
         });
-        toast.error(isServerDenial ? 'تم رفض تصريح الدخول' : 'الرمز غير صالح');
+        toast.error('فشل الاتصال بالخادم، يرجى التحقق من شبكة الإنترنت.');
+      } else {
+        const msg = error.response.data?.message || 'رمز QR غير معروف أو غير موجود بالنظام.';
+        setScanResult({
+          success: false,
+          message: msg,
+        });
+        toast.error(msg);
       }
     } finally {
       setLoading(false);
