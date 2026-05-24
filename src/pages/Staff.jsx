@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Shield, User, DollarSign } from 'lucide-react';
+import { Plus, Edit2, Trash2, Shield, User, DollarSign, AlertTriangle } from 'lucide-react';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
 import CyberCard from '../components/ui/CyberCard';
@@ -13,6 +13,8 @@ export const Staff = () => {
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingStaff, setEditingStaff] = useState(null);
+  const [gymQuota, setGymQuota] = useState(null); // { maxReceptionists, maxCoaches }
+  const [formError, setFormError] = useState('');
 
   // Form State
   const [formData, setFormData] = useState({
@@ -31,19 +33,37 @@ export const Staff = () => {
         setStaffList(response.data.data.staff);
       }
     } catch (error) {
-      console.warn('API error, using local mock state for staff list');
+      console.warn('API error fetching staff list');
     } finally {
       setLoading(false);
     }
   };
 
+  // Fetch gym quota info so we can show owner how many staff slots they have
+  const fetchGymQuota = async () => {
+    try {
+      const res = await api.get('/dashboard/stats');
+      const gymData = res.data?.data;
+      if (gymData) {
+        setGymQuota({
+          maxReceptionists: gymData.maxReceptionists,
+          maxCoaches: gymData.maxCoaches,
+        });
+      }
+    } catch (err) {
+      // quota info is optional, ignore errors
+    }
+  };
+
   useEffect(() => {
     fetchStaff();
+    fetchGymQuota();
   }, []);
 
   const handleOpenAdd = () => {
     setEditingStaff(null);
     setFormData({ name: '', email: '', password: '', role: 'Coach', baseSalary: '' });
+    setFormError('');
     setModalOpen(true);
   };
 
@@ -52,15 +72,17 @@ export const Staff = () => {
     setFormData({
       name: staff.name,
       email: staff.email,
-      password: '', // default empty for safety during edits
+      password: '',
       role: staff.role,
       baseSalary: staff.baseSalary,
     });
+    setFormError('');
     setModalOpen(true);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setFormError('');
     if (!formData.name || !formData.email || (!editingStaff && !formData.password) || !formData.baseSalary) {
       toast.error('يرجى تعبئة الحقول بشكل صحيح');
       return;
@@ -79,28 +101,23 @@ export const Staff = () => {
 
     try {
       if (editingStaff) {
-        // PUT update
         await api.put(`/staff/${editingStaff.id}`, payload);
-        
-        // Mock update locally
         setStaffList(staffList.map(s => s.id === editingStaff.id ? { ...s, ...payload } : s));
         toast.success('تم تحديث بيانات الموظف بنجاح');
+        setModalOpen(false);
       } else {
-        // POST create
+        // POST create — do NOT fallback locally if API fails (quota errors must be shown)
         const response = await api.post('/staff', payload);
         const newStaff = response.data?.data?.staff || response.data?.staff || { id: Date.now(), ...payload };
         setStaffList([...staffList, newStaff]);
         toast.success('تم تسجيل الموظف الجديد بنجاح');
+        setModalOpen(false);
       }
-      setModalOpen(false);
     } catch (error) {
-      // Fallback simulation:
-      const fallbackStaff = editingStaff 
-        ? staffList.map(s => s.id === editingStaff.id ? { ...s, ...payload } : s)
-        : [...staffList, { id: Date.now(), ...payload }];
-      setStaffList(fallbackStaff);
-      toast.success(editingStaff ? 'تم التعديل محلياً' : 'تمت الإضافة محلياً');
-      setModalOpen(false);
+      const msg = error.response?.data?.message || 'حدث خطأ أثناء حفظ بيانات الموظف';
+      setFormError(msg);
+      toast.error(msg);
+      // Do NOT close modal — let the user read the error
     }
   };
 
@@ -161,6 +178,32 @@ export const Staff = () => {
           إضافة موظف جديد
         </CyberButton>
       </div>
+
+      {/* Quota Info Banner */}
+      {gymQuota && (
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex items-center gap-3 bg-blue-500/5 border border-blue-500/20 rounded-xl p-3">
+            <Shield size={18} className="text-blue-400 shrink-0" />
+            <div>
+              <p className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">مدربون مسجلون</p>
+              <p className="text-sm font-bold text-white">
+                {staffList.filter(s => s.role === 'Coach').length}
+                <span className="text-gray-500 font-normal"> / {gymQuota.maxCoaches ?? '—'} حد أقصى</span>
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 bg-purple-500/5 border border-purple-500/20 rounded-xl p-3">
+            <User size={18} className="text-purple-400 shrink-0" />
+            <div>
+              <p className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">موظفو الاستقبال</p>
+              <p className="text-sm font-bold text-white">
+                {staffList.filter(s => s.role === 'Receptionist').length}
+                <span className="text-gray-500 font-normal"> / {gymQuota.maxReceptionists ?? '—'} حد أقصى</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Staff DataTable */}
       <CyberCard title="طاقم العمل الحالي">
@@ -239,6 +282,14 @@ export const Staff = () => {
               required
             />
           </div>
+
+          {/* Quota Error Display */}
+          {formError && (
+            <div className="flex items-start gap-2 text-xs text-rose-300 font-medium bg-rose-500/10 border border-rose-500/30 rounded-xl p-3">
+              <AlertTriangle size={14} className="shrink-0 mt-0.5 text-rose-400" />
+              <span>{formError}</span>
+            </div>
+          )}
 
           <div className="flex justify-end gap-3 pt-3 border-t border-[var(--color-cyber-border)]">
             <CyberButton type="button" onClick={() => setModalOpen(false)} variant="outline">
