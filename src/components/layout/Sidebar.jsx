@@ -10,7 +10,8 @@ import {
   QrCode,
   DollarSign,
   LogOut,
-  X
+  X,
+  GitBranch
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -41,6 +42,12 @@ export const Sidebar = ({ isOpen, onClose }) => {
       path: '/staff',
       label: 'إدارة الموظفين',
       icon: Users,
+      roles: ['Gym-Owner', 'owner'],
+    },
+    {
+      path: '/branches',
+      label: 'إدارة الفروع',
+      icon: GitBranch,
       roles: ['Gym-Owner', 'owner'],
     },
     {

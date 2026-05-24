@@ -16,6 +16,7 @@ import Staff from './pages/Staff';
 import Members from './pages/Members';
 import Attendance from './pages/Attendance';
 import Financials from './pages/Financials';
+import Branches from './pages/Branches';
 
 // Private Route Guard (handles auth and role checks with normalization)
 const PrivateRoute = ({ children, allowedRoles }) => {
@@ -127,6 +128,14 @@ function App() {
             element={
               <PrivateRoute allowedRoles={['Gym-Owner']}>
                 <Financials />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="branches"
+            element={
+              <PrivateRoute allowedRoles={['Gym-Owner']}>
+                <Branches />
               </PrivateRoute>
             }
           />

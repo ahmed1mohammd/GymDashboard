@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Shield, User, DollarSign, AlertTriangle, GitBranch, Filter } from 'lucide-react';
+import axios from 'axios';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
 import CyberCard from '../components/ui/CyberCard';
@@ -7,6 +8,17 @@ import CyberButton from '../components/ui/CyberButton';
 import CyberInput from '../components/ui/CyberInput';
 import DataTable from '../components/ui/DataTable';
 import Modal from '../components/ui/Modal';
+
+// Separate axios instance for /gym routes
+const gymApi = axios.create({
+  baseURL: 'https://elegant-playfulness-production-f153.up.railway.app/gym',
+  headers: { 'Content-Type': 'application/json' },
+});
+gymApi.interceptors.request.use(cfg => {
+  const token = localStorage.getItem('token');
+  if (token) cfg.headers.Authorization = `Bearer ${token}`;
+  return cfg;
+});
 
 const SELECT_CLASS = 'w-full bg-[rgba(10,10,15,0.8)] border border-[var(--color-cyber-border)] rounded-xl py-2.5 px-4 text-sm text-white focus:outline-none focus:border-[var(--color-neon-emerald)] transition-all duration-300';
 
@@ -46,9 +58,8 @@ export const Staff = () => {
 
   const fetchBranches = async () => {
     try {
-      const res = await api.get('/gym/branches');
+      const res = await gymApi.get('/branches');
       if (res.data?.data?.branches) {
-        // Only show ACTIVE branches in the dropdown
         setBranches(res.data.data.branches.filter(b => b.status === 'ACTIVE'));
       }
     } catch {
