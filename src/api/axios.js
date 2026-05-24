@@ -40,10 +40,23 @@ api.interceptors.response.use(
         localStorage.removeItem('user');
         window.location.href = '/login';
       } else if (error.response.status === 403) {
-        toast.error(errMsg || 'عذراً، هذا الحساب غير مفعل أو مجمد حالياً. يرجى مراجعة إدارة المنصة.', { id: 'auth-error' });
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
+        // Only log out if the gym account is inactive, frozen, suspended, or pending
+        const isGymStatusError = errMsg.includes('عفواً') || 
+                                 errMsg.includes('تعليق') || 
+                                 errMsg.includes('موقف') || 
+                                 errMsg.includes('مجمد') || 
+                                 errMsg.includes('مراجعة') || 
+                                 errMsg.includes('انتهت مدة الاشتراك');
+
+        if (isGymStatusError) {
+          toast.error(errMsg || 'عذراً، هذا الحساب غير مفعل أو مجمد حالياً. يرجى مراجعة إدارة المنصة.', { id: 'auth-error' });
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.location.href = '/login';
+        } else {
+          // Standard role permission authorization error: just show the toast error without logging out
+          toast.error(errMsg || 'عذراً، ليس لديك الصلاحية للقيام بهذا الإجراء.', { id: 'auth-error' });
+        }
       } else {
         toast.error(errMsg || 'حدث خطأ غير متوقع');
       }
