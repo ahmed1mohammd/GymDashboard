@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, QrCode, Phone, User, CheckCircle2, AlertTriangle, ShieldAlert, Download } from 'lucide-react';
+import { Plus, Edit2, Trash2, QrCode, Phone, User, CheckCircle2, AlertTriangle, ShieldAlert, Download, Mars, Venus, Snowflake } from 'lucide-react';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
 import { useTheme } from '../context/ThemeContext';
