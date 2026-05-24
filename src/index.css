@@ -1,0 +1,149 @@
+@import "tailwindcss";
+
+:root {
+  /* Default brand presets matching Flexora Landing Page */
+  --theme-primary: #e50914; 
+  --theme-secondary: #0f0f0f;
+  --theme-tertiary: #10b981;
+
+  /* Default Dark Mode colors */
+  --color-bg-main: #050505;
+  --color-bg-darker: #0c0c0c;
+  --color-bg-card: rgba(15, 15, 15, 0.7);
+  --color-border-main: rgba(255, 255, 255, 0.08);
+  --color-text-main: #f5f5f5;
+  --color-text-muted: #9ca3af;
+  --bg-image-dynamic: radial-gradient(circle at top right, rgba(229, 9, 20, 0.04), transparent 60%), radial-gradient(circle at bottom left, rgba(16, 18, 27, 0.02), transparent 50%);
+}
+
+@theme {
+  --color-cyber-dark: var(--color-bg-main);
+  --color-cyber-darker: var(--color-bg-darker);
+  --color-cyber-card: var(--color-bg-card);
+  --color-cyber-border: var(--color-border-main);
+  --color-text-cyber: var(--color-text-main);
+  --color-text-muted-cyber: var(--color-text-muted);
+  --color-neon-emerald: var(--theme-primary);
+  --color-neon-primary: var(--theme-secondary);
+  --color-neon-pink: var(--theme-tertiary);
+  
+  --font-arabic: 'Cairo', 'Tajawal', sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-cyber-dark text-[var(--color-text-main)] font-arabic;
+    direction: rtl;
+    background-image: var(--bg-image-dynamic);
+    background-attachment: fixed;
+    min-height: 100vh;
+    transition: background-image 0.5s ease, background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  /* Select and option tag visibility fixes for Light Mode */
+  select {
+    color: var(--color-text-main) !important;
+    background-color: var(--color-bg-darker) !important;
+  }
+  
+  option {
+    color: var(--color-text-main) !important;
+    background-color: var(--color-bg-darker) !important;
+  }
+  
+  input {
+    color: var(--color-text-main) !important;
+    background-color: transparent !important;
+  }
+
+  /* Global Base overrides for seamless Light/Dark Mode contrasts */
+  h1, h2, h3, h4, h5, h6, th, td, label {
+    color: var(--color-text-main);
+    transition: color 0.3s ease;
+  }
+
+  .text-white {
+    color: var(--color-text-main);
+  }
+
+  .text-gray-400 {
+    color: var(--color-text-muted);
+  }
+
+  /* CRITICAL EXCEPTION: Keep text white in dark backgrounds/containers inside light mode! */
+  :root.light aside,
+  :root.light aside *,
+  :root.light .bg-slate-900,
+  :root.light .bg-slate-900 *,
+  :root.light .bg-slate-950,
+  :root.light .bg-slate-950 *,
+  :root.light .bg-black,
+  :root.light .bg-black *,
+  :root.light .bg-black\/90,
+  :root.light .bg-black\/90 *,
+  :root.light .bg-emerald-950\/20,
+  :root.light .bg-emerald-950\/20 *,
+  :root.light .bg-rose-950\/20,
+  :root.light .bg-rose-950\/20 *,
+  :root.light .text-white-force,
+  :root.light button.bg-\[var\(--theme-primary\)\] *,
+  :root.light button.bg-rose-600 *,
+  :root.light button.bg-emerald-600 * {
+    color: #ffffff !important;
+  }
+
+  /* Deep brand primary crimson remains white inside solid buttons */
+  button.bg-\[var\(--theme-primary\)\] {
+    color: #ffffff !important;
+  }
+  button.bg-\[var\(--theme-primary\)\] span {
+    color: #ffffff !important;
+  }
+  .bg-rose-600\/20 {
+    background-color: rgba(244, 63, 94, 0.15) !important;
+  }
+
+  /* Disable all glowing text shadows in Light Mode for sharp rendering */
+  :root.light .neon-text-emerald,
+  :root.light .neon-text-primary,
+  :root.light h1, :root.light h2, :root.light h3, :root.light h4, :root.light h5, :root.light h6 {
+    text-shadow: none !important;
+  }
+}
+
+/* Glassmorphism Utilities */
+@layer utilities {
+  .glass-panel {
+    @apply bg-cyber-card backdrop-blur-xl border border-cyber-border rounded-2xl;
+    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .glass-panel-hover {
+    @apply hover:border-[var(--color-border-active)] hover:translate-y-[-4px] hover:scale-[1.01];
+    box-shadow: 0 10px 25px -5px rgba(229, 9, 20, 0.15), 0 0 15px rgba(229, 9, 20, 0.05);
+  }
+
+  .neon-text-emerald {
+    text-shadow: 0 0 10px var(--theme-primary);
+  }
+  
+  .neon-text-primary {
+    text-shadow: 0 0 10px var(--theme-secondary);
+  }
+
+  /* Custom Scrollbar for dark/light themes */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-bg-darker);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #374151;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--theme-primary);
+  }
+}
