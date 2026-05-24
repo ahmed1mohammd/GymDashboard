@@ -2,7 +2,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 
 const api = axios.create({
-  baseURL: 'http://localhost:3000/user',
+  baseURL: 'https://elegant-playfulness-production-f153.up.railway.app/user',
   headers: {
     'Content-Type': 'application/json',
   },
