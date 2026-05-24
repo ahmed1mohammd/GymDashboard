@@ -12,7 +12,7 @@ import Modal from '../components/ui/Modal';
 
 // Custom SVG WhatsApp icon matching design guidelines
 const WhatsAppIcon = () => (
-  <svg className="w-4 h-4 fill-current mr-2" viewBox="0 0 24 24">
+  <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
     <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.725 1.45 5.535 0 10.04-4.5 10.04-10.042.002-2.684-1.038-5.207-2.93-7.1-1.894-1.892-4.41-2.93-7.098-2.93-5.543 0-10.046 4.502-10.047 10.045-.001 1.777.464 3.51 1.347 5.048l-.995 3.637 3.73-.978zm11.567-5.282c-.313-.156-1.854-.915-2.131-1.016-.277-.1-.479-.15-.68.15-.2.3-.777.915-.953 1.116-.176.2-.352.226-.665.07-1.157-.58-1.854-.93-2.585-2.19-.19-.323.19-.3.543-.997.106-.2.053-.376-.026-.531-.079-.156-.68-1.637-.93-2.247-.244-.588-.492-.51-.68-.52h-.581c-.2-.001-.527.075-.803.376-.277.301-1.055 1.03-1.055 2.516 0 1.486 1.08 2.922 1.23 3.122.15.2 2.125 3.245 5.148 4.54.718.309 1.28.494 1.718.633.721.23 1.378.197 1.898.12.58-.087 1.855-.758 2.116-1.492.26-.734.26-1.362.18-1.492-.08-.13-.298-.207-.61-.364z"/>
   </svg>
 );
@@ -519,9 +519,14 @@ export const Members = () => {
           emptyMessage="لا يوجد أعضاء يطابقون خيارات البحث المسجلة."
           actions={(row) => (
             <>
-              <CyberButton onClick={() => handleOpenQR(row)} variant="outline" size="sm">
-                <QrCode size={12} />
-                عرض QR
+              <CyberButton 
+                onClick={() => handleOpenQR(row)} 
+                variant="outline" 
+                size="sm" 
+                className="p-1.5 flex items-center justify-center rounded-lg min-w-[28px] h-[28px]" 
+                title="عرض كود QR"
+              >
+                <QrCode size={13} />
               </CyberButton>
 
               <CyberButton 
@@ -532,21 +537,31 @@ export const Members = () => {
                 }} 
                 variant="secondary" 
                 size="sm"
-                className="border-emerald-500/30 text-emerald-400 hover:border-emerald-500/60 font-bold"
+                className="border-emerald-500/30 text-emerald-400 hover:border-emerald-500/60 p-1.5 flex items-center justify-center rounded-lg min-w-[28px] h-[28px]"
+                title="إرسال عبر واتساب"
               >
                 <WhatsAppIcon />
-                واتساب
               </CyberButton>
 
               {user?.role !== 'Coach' && (
                 <>
-                  <CyberButton onClick={() => handleOpenEdit(row)} variant="secondary" size="sm">
-                    <Edit2 size={12} />
-                    تعديل
+                  <CyberButton 
+                    onClick={() => handleOpenEdit(row)} 
+                    variant="secondary" 
+                    size="sm" 
+                    className="p-1.5 flex items-center justify-center rounded-lg min-w-[28px] h-[28px]" 
+                    title="تعديل بيانات العضوية"
+                  >
+                    <Edit2 size={13} />
                   </CyberButton>
-                  <CyberButton onClick={() => handleDelete(row.id)} variant="danger" size="sm">
-                    <Trash2 size={12} />
-                    حذف
+                  <CyberButton 
+                    onClick={() => handleDelete(row.id)} 
+                    variant="danger" 
+                    size="sm" 
+                    className="p-1.5 flex items-center justify-center rounded-lg min-w-[28px] h-[28px]" 
+                    title="حذف العضو"
+                  >
+                    <Trash2 size={13} />
                   </CyberButton>
                 </>
               )}

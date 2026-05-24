@@ -47,7 +47,7 @@ export const DataTable = ({ columns, data = [], emptyMessage = 'لا توجد ب
                   ))}
                   {actions && (
                     <td className="px-3.5 py-1.5 text-xs lg:text-[13px] text-left whitespace-nowrap">
-                      <div className="flex flex-wrap items-center justify-end gap-2">
+                      <div className="flex items-center justify-end gap-1.5 flex-nowrap">
                         {actions(row)}
                       </div>
                     </td>
