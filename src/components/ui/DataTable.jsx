@@ -12,13 +12,13 @@ export const DataTable = ({ columns, data = [], emptyMessage = 'لا توجد ب
               {columns.map((column) => (
                 <th
                   key={column.key}
-                  className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider select-none"
+                  className="px-3.5 py-2 text-[11px] lg:text-xs font-bold text-gray-400 uppercase tracking-wider select-none whitespace-nowrap"
                 >
                   {column.label}
                 </th>
               ))}
               {actions && (
-                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider text-left select-none">
+                <th className="px-3.5 py-2 text-[11px] lg:text-xs font-bold text-gray-400 uppercase tracking-wider text-left select-none whitespace-nowrap">
                   الإجراءات
                 </th>
               )}
@@ -29,7 +29,7 @@ export const DataTable = ({ columns, data = [], emptyMessage = 'لا توجد ب
               <tr>
                 <td
                   colSpan={columns.length + (actions ? 1 : 0)}
-                  className="px-6 py-8 text-center text-sm text-gray-500"
+                  className="px-6 py-6 text-center text-xs lg:text-sm text-gray-500"
                 >
                   {emptyMessage}
                 </td>
@@ -41,12 +41,12 @@ export const DataTable = ({ columns, data = [], emptyMessage = 'لا توجد ب
                   className="hover:bg-[rgba(16,185,129,0.02)] transition-colors duration-150"
                 >
                   {columns.map((column) => (
-                    <td key={column.key} className="px-6 py-4 text-sm text-gray-300">
+                    <td key={column.key} className="px-3.5 py-1.5 text-xs lg:text-[13px] text-gray-300 whitespace-nowrap leading-normal">
                       {column.render ? column.render(row[column.key], row) : row[column.key]}
                     </td>
                   ))}
                   {actions && (
-                    <td className="px-6 py-4 text-sm text-left">
+                    <td className="px-3.5 py-1.5 text-xs lg:text-[13px] text-left whitespace-nowrap">
                       <div className="flex flex-wrap items-center justify-end gap-2">
                         {actions(row)}
                       </div>
