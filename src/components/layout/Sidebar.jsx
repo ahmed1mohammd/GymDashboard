@@ -47,7 +47,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
       path: '/members',
       label: 'إدارة الأعضاء CRM',
       icon: UserSquare2,
-      roles: ['Gym-Owner', 'owner', 'Coach', 'coach', 'Receptionist', 'receptionist'],
+      roles: ['Gym-Owner', 'owner', 'Receptionist', 'receptionist'],
     },
     {
       path: '/attendance',

@@ -22,18 +22,23 @@ export const CoachDashboard = () => {
         if (response.data && response.data.data) {
           const d = response.data.data;
           const mappedPlayers = Array.isArray(d.privateClients) 
-            ? d.privateClients.map((c, i) => ({
-                id: i,
+            ? d.privateClients.map((c) => ({
+                id: c.id,
                 name: c.name,
-                package: 'تدريب خاص بريميوم (PT)',
-                startDate: c.subscriptionEnd ? c.subscriptionEnd.split('T')[0] : 'جاري',
+                packageName: c.packageName,
+                startDate: c.createdAt ? new Date(c.createdAt).toLocaleDateString('ar-EG') : '—',
+                endDate: c.subscriptionEnd ? new Date(c.subscriptionEnd).toLocaleDateString('ar-EG') : '—',
+                phoneNumber: c.phoneNumber,
+                attendedDays: c.attendedDays,
+                absentDays: c.absentDays,
+                commitmentRate: c.commitmentRate,
                 status: c.status === 'active' ? 'نشط' : 'غير نشط'
               }))
             : [];
           
           setCoachData({
             totalPlayers: d.totalClientsCount !== undefined ? d.totalClientsCount : 0,
-            commissionPerPlayer: user?.baseSalary || d.coachEarnings / (d.totalClientsCount || 1) || 0, 
+            commissionPerPlayer: user?.baseSalary || 0, 
             baseSalary: user?.baseSalary || 0,
             players: mappedPlayers
           });
@@ -51,19 +56,14 @@ export const CoachDashboard = () => {
   const totalCalculatedSalary = coachData.totalPlayers * coachData.commissionPerPlayer;
 
   const columns = [
-    { key: 'name', label: 'اسم اللاعب' },
-    { key: 'package', label: 'الباقة المشترك بها' },
-    { key: 'startDate', label: 'تاريخ بدء التدريب' },
-    {
-      key: 'status',
-      label: 'الحالة',
-      render: (val) => (
-        <span className="inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full text-emerald-400 bg-emerald-500/10">
-          <Dumbbell size={10} />
-          {val}
-        </span>
-      ),
-    },
+    { key: 'name', label: 'اسم اللاعب الكامـل' },
+    { key: 'packageName', label: 'الباقة المشترك بها' },
+    { key: 'startDate', label: 'تاريخ بداية الاشتراك' },
+    { key: 'endDate', label: 'تاريخ انتهاء الاشتراك' },
+    { key: 'phoneNumber', label: 'رقم الموبايل / الهاتف', render: (val) => <span className="tracking-wider text-xs font-mono">{val}</span> },
+    { key: 'attendedDays', label: 'أيام الحضور', render: (val) => <span className="text-emerald-400 font-bold">✔️ {val || 0} يوم</span> },
+    { key: 'absentDays', label: 'أيام الغياب', render: (val) => <span className="text-rose-400 font-bold">❌ {val || 0} يوم</span> },
+    { key: 'commitmentRate', label: 'نسبة الالتزام %', render: (val) => <span className="text-sky-400 font-bold">📊 {val || 0}%</span> },
   ];
 
   return (
