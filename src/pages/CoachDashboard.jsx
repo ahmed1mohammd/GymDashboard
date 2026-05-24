@@ -38,8 +38,8 @@ export const CoachDashboard = () => {
           
           setCoachData({
             totalPlayers: d.totalClientsCount !== undefined ? d.totalClientsCount : 0,
-            commissionPerPlayer: user?.baseSalary || 0, 
-            baseSalary: user?.baseSalary || 0,
+            commissionPerPlayer: d.baseSalary !== undefined ? d.baseSalary : (user?.baseSalary || 0), 
+            baseSalary: d.baseSalary !== undefined ? d.baseSalary : (user?.baseSalary || 0),
             players: mappedPlayers
           });
         }
