@@ -11,7 +11,8 @@ import {
   DollarSign,
   LogOut,
   X,
-  GitBranch
+  GitBranch,
+  MessageSquare
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -67,6 +68,13 @@ export const Sidebar = ({ isOpen, onClose }) => {
       label: 'المالية والحسابات',
       icon: DollarSign,
       roles: ['Gym-Owner', 'owner'],
+    },
+    {
+      path: '/whatsapp',
+      label: 'واتساب الصالة',
+      icon: MessageSquare,
+      // Visible to ALL roles during testing — restrict to owner later
+      roles: ['Gym-Owner', 'owner', 'Coach', 'coach', 'Receptionist', 'receptionist'],
     },
   ];
 
@@ -125,7 +133,11 @@ export const Sidebar = ({ isOpen, onClose }) => {
         </div>
         <h4 className="mt-2.5 font-bold text-sm text-white select-none">{user?.name}</h4>
         <span className="text-[10px] font-bold text-[var(--theme-primary)] tracking-wider mt-0.5 px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 select-none">
-          {roleTranslations[user?.role] || 'مشرف'}
+          {roleTranslations[user?.role] || user?.role || 'مشرف'}
+        </span>
+        {/* DEBUG: show raw role from API */}
+        <span className="text-[9px] text-gray-600 mt-0.5 font-mono select-none">
+          role: {user?.role} | id: {user?.gymId?.slice?.(0,8) || user?.id?.slice?.(0,8) || '?'}
         </span>
       </div>
 

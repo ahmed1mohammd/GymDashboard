@@ -17,6 +17,8 @@ import Members from './pages/Members';
 import Attendance from './pages/Attendance';
 import Financials from './pages/Financials';
 import Branches from './pages/Branches';
+import WhatsApp from './pages/WhatsApp';
+
 
 // Private Route Guard (handles auth and role checks with normalization)
 const PrivateRoute = ({ children, allowedRoles }) => {
@@ -139,6 +141,15 @@ function App() {
               </PrivateRoute>
             }
           />
+          <Route
+            path="whatsapp"
+            element={
+              <PrivateRoute allowedRoles={['Gym-Owner', 'Coach', 'Receptionist']}>
+                <WhatsApp />
+              </PrivateRoute>
+            }
+          />
+
           
           {/* Catch-all fallback */}
           <Route path="*" element={<RootRedirect />} />
